@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from .models import Question, Choice
 from django.views import generic
 from django.urls import reverse
+from django.utils import timezone
 
 # Create your views here.
 
@@ -12,11 +13,15 @@ class IndexView(generic.ListView):
 	context_object_name = 'list_of_questions'
 
 	def get_queryset(self):
-		return Question.objects.order_by('-pub_date')
+		return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
 
 class DetailView(generic.DetailView):
 	model = Question
 	template_name = 'polls/detail.html'
+
+	def get_queryset(self):
+		"only question from the past"
+		return Question.objects.filter(pub_date__lte=timezone.now())
 
 class ResultView(generic.DetailView):
 	model = Question
